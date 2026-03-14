@@ -1,0 +1,3 @@
+1. Forgetting to pass arrays by reference, and queues by reference for MLQ. Passing by value will mess everything up, it won't even run. 
+2. Forgetting to update completed.
+3. Not initializing variables and just declaring them. 
