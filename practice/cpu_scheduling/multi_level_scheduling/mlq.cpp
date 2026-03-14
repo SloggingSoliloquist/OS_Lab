@@ -161,7 +161,7 @@ void mlq_scheduler(std::vector<Process> &processes)
             }
         }
     }
-    else{
+    else{//if it isn't done, push it back into its respective queue
          if (curr_process.priority==1)
         {
             q1.push(curr_process);

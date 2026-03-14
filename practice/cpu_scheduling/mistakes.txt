@@ -1,3 +1,8 @@
 1. Forgetting to pass arrays by reference, and queues by reference for MLQ. Passing by value will mess everything up, it won't even run. 
 2. Forgetting to update completed.
 3. Not initializing variables and just declaring them. 
+4. Forgetting to pop() after accessing the top() element. 
+5. Skipping the current time ahead:
+correct: current_time=processes[i].arrival_time;
+wrong: current_time+=processes[i].arrival_time;
+6. Not initializing the remaining times. 
