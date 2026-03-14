@@ -2,73 +2,70 @@
 #include<algorithm>
 #include<queue>
 #include<vector>
-
+#define TIME_QUANTUM 3
 struct Process{
     int pid;
     int arrival_time;
     int burst_time;
-    int priority;
 
-    int waiting_time;
     int completion_time;
-    int turnaround_time;
     int remaining_time;
+    int turnaround_time;
+    int waiting_time;
 };
 
 bool compareArrival(Process &a, Process &b)
 {
-    return a.arrival_time<b.arrival_time;  //a should come before b if a.arrival_time<b.arrival_time
+    return a.arrival_time<b.arrival_time;
 }
 
-struct comparePriority{
-    bool operator()(Process &a, Process &b)
-    {
-        if (a.priority==b.priority)
-        return a.arrival_time>b.arrival_time; //if two processes have same priority, break the tie using FCFS.
-        return a.priority>b.priority; //a should have lower priority than b if a.priority>b.priority (so lower priority number=higher priority)
-    }
-};
-void priority_preemptive(std::vector<Process> &processes)
+void rr(std::vector<Process> &processes) //rr is very similar to priority_p and srtf. 
 {
-    std::sort(processes.begin(), processes.end(), compareArrival);
-    std::priority_queue<Process, std::vector<Process>, comparePriority> ready_queue;
+    std::sort(processes.begin(), processes.end(),compareArrival);
+    std::queue<Process> ready_queue;
     int i=0;
-    int completed =0;
-    int n=processes.size();
     int current_time=0;
+    int completed=0;
+    int n=processes.size();
     for(auto &p:processes)
     {
         p.remaining_time=p.burst_time;
     }
-
     while(completed<n)
     {
-        while(i<n && processes[i].arrival_time<=current_time)
-        {
+        while(i<n && processes[i].arrival_time<=current_time){
             ready_queue.push(processes[i]);
             i++;
         }
-        if(ready_queue.empty())
-        {
-            current_time++;//do NOT skip forward by more than one step. 
+        if(ready_queue.empty()){
+            current_time=processes[i].arrival_time;
             continue;
         }
-
-    Process p=ready_queue.top();
+    //Now pick the process at the front of the queue and execute it for: either the time quantum, or if 
+    //the remaining time of execution is less than the time quantum, the remaining time. 
+    Process p = ready_queue.front();
     ready_queue.pop();
-    p.remaining_time--;
-    current_time++;
-    if(p.remaining_time==0)
+    int exec_time = std::min(p.remaining_time, TIME_QUANTUM);
+    current_time+=exec_time;
+    p.remaining_time-=exec_time;
+    //Now, new processes might have arrived during this time, so check for them and add them to the queue again
+    while(i<n && processes[i].arrival_time<=current_time)
     {
-        p.completion_time= current_time;
-        p.turnaround_time= p.completion_time-p.arrival_time;
-        p.waiting_time= p.turnaround_time-p.burst_time;
+        ready_queue.push(processes[i]);
+        i++;
+    }
+    //now check if the process you just executed has finished executing or not. 
+    if(p.remaining_time==0){
+        p.completion_time=current_time;
+        p.turnaround_time=p.completion_time-p.arrival_time;
+        p.waiting_time=p.turnaround_time-p.burst_time;
         completed++;
         for(auto &proc:processes)
         {
             if(proc.pid==p.pid)
             {
                 proc=p;
+                break;
             }
         }
     }
@@ -77,6 +74,7 @@ void priority_preemptive(std::vector<Process> &processes)
     }
 }
 }
+
 void displayProcesses(std::vector<Process> &processes)
 {
     std::cout<<"PID\tAT\tBT\tCT\tTAT\tWT"<<std::endl;
@@ -99,10 +97,8 @@ int main(){
         std::cin>>process.arrival_time;
         std::cout<<"Burst time: ";
         std::cin>>process.burst_time;
-        std::cout<<"Enter the priority: ";
-        std::cin>>process.priority;
     }
-    priority_preemptive(processes);
+    rr(processes);
     displayProcesses(processes);
     return 0;
 }

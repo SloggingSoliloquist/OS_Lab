@@ -1,0 +1,6 @@
+ERROR: Disk full at 10:00
+warning: low memory
+SUCCESS: Process finished.
+ERROR: Connection lost at 10:15
+critical_error: kernel panic
+Note: system rebooted.

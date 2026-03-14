@@ -1,0 +1,30 @@
+FCFS is fairly simple so no comment. 
+Notes for the other ones: 
+SJF, SRTF, Priority scheduling (both types) and RR are very similar. 
+ALL of them have this check for processes that have arrived by the current_time: 
+while(i<n and processes[i].arrival_time<=current_time)
+{
+    push to the queue;
+    i++;
+}
+and the check to fastforward if the queue is empty: 
+if(queue.empty())
+{
+    current_time+=process[i].arrival_time; (current_time++ in the case of SRTF)
+    break;
+}
+
+The non-preemptive ones are straight forward, the while loop will have some sort of condition like
+while(i<n || !ready_queue.empty())
+and after the two common checks, they'll pop from the queue and update everything about the process. 
+
+The preemptive ones are similar to each other in the sense that, they rely on keeping track of  the
+number of processes that have completed.
+while(completed<n)
+
+inside, the first two checks are pretty much the exact same. After the first two checks, they pop a process out, 
+and then instead of directly updating, they only move forward in time by some fixed amount (one unit for SJF and priority_p, the time quantum
+for RR), and then checks if the remaining_time is 0 or not. if 0, then they update the process with all of its stuff like turnaround time, 
+waiting time etc., and if not, they push the process back into the queue. 
+RR performs an extra check simular to the very first check in this document, after it pops a process and lets it execute. 
+

@@ -20,10 +20,11 @@ bool compareArrival(Process &a, Process &b)
 }
 
 struct comparePriority{
-    bool operator()(Process &a, Process &b){
-        return a.priority>b.priority; //you do the opposite of what the priority queue selects based on.
-        //priority selects max element, and if a<b, it's definition of "MAX" is when a<b. 
-        //if you want lower number to be given higher priority, do a>b. Now the lesser number will have higher priority. 
+    bool operator()(Process &a, Process &b)
+    {
+        if (a.priority==b.priority)
+        return a.arrival_time>b.arrival_time; //if two processes have same priority, break the tie using FCFS.
+        return a.priority>b.priority; //a should have lower priority than b if a.priority>b.priority (so lower priority number=higher priority)
     }
 };
 

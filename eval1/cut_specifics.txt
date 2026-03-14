@@ -1,0 +1,9 @@
+CUt with delimiters:
+
+cut -d ":" -f 2 file.txt
+
+Cut without delimiters (to display n characters of bytes of a line):
+cut -c 10 file.txt
+
+Cut and sort(remember sort works only on files not on patterns entered in the command): 
+cut -d ":" -f 4 employees.txt >> employee_salaries.txt && sort -n employee_salaries.txt

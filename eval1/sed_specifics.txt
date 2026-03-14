@@ -1,0 +1,57 @@
+If grep is for finding text, sed is for transforming it. In a lab, you'll mostly use it for find-and-replace.
+
+The Basic Syntax: s (Substitute)
+The most common command is s/pattern/replacement/flags.
+
+sed 's/IT/Technical/' file: Replaces the first "IT" in every line with "Technical".
+
+sed 's/IT/Technical/g': The g (global) replaces every "IT" on the line.
+
+sed -i 's/old/new/g' file: The -i flag saves the changes to the file (use with caution!).
+
+Common sed Tricks for Labs
+Delete lines: sed '3d' file (deletes line 3) or sed '/ERROR/d' file (deletes lines containing ERROR).
+
+Specific lines: sed '1,5s/A/B/g' (only substitute on lines 1 through 5).
+
+Multiple edits: sed -e 's/a/b/' -e 's/c/d/' file.
+
+Here, the -e option is simply used to specify that some script succeeding this option is to be executed. 
+If you only have one script to execute as in most cases, it is optional, otherwise for multiple scripts in the same
+sed command, specify each with the -e option. 
+
+SED with a file and a script: 
+sed -f sedfile.sed -e "s/hi/hello" file.txt
+
+'a' appends something in the line
+below where a  pattern is found, it doesn't make sense to use s here. 'i' inserts into a line
+above where
+the pattern is found. 
+
+Working with lines:
+
+Include line numbers as the first argument in the sed command. 
+
+example:
+sed '3d' employees.txt deletes the third line
+
+'d' deletes the entire line where the pattern is found. 
+
+sed '/IT/d' something.txt deletes all lines containing IT.
+
+sed '10,$d' deletes everything from line 10 onwards. 
+general syntax is just sed '{line no.s}command' 
+
+sed '1,10d'
+
+not sed '1-10d'
+Deleting non-matches:
+
+sed '/IT/!d' deletes all lines not containing the pattern 'IT'. 
+
+
+Remember: only if using s or line numbers, your sed command will not begin with a /. otherwise it always does. 
+
+
+ cut -d ":" -f 6-8 practice.txt | tr ":" "+" | sed 's/.*/(&)\/3/' | bc -l
+

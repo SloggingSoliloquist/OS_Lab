@@ -1,0 +1,75 @@
+The Regex Toolkit for Grep
+Regular Expressions (Regex) use special characters to represent concepts like "start of line," "any digit," or "repeated character."
+
+1. Anchors (Positioning)
+^: Matches the start of a line. (^Apple → line must begin with Apple).
+
+$: Matches the end of a line. (done$ → line must end with done).
+
+2. Wildcards & Quantifiers
+.: Matches any single character except a newline. Only wildcard which doesn't work on the preceding character 
+at all. 
+
+*: Matches zero or more of the preceding character.
+
++: Matches one or more (Requires grep -E or egrep) of the preceding character
+
+?: Matches zero or one (Requires grep -E) of the preceding character 
+
+{n,m}: Allows you to match number of occurrences of some expression. 
+
+eg: grep -E a{2} returns lines that have a occurring exactly 2 times consecutively. 
+grep -E a{2,} returns lines that have 'a' occurring 2 or more times. 
+grep -E a{2, 4} returns lines that have a occurring 2, 3 or 4 times. (between 2 and 4 times) consecutively. 
+
+Note: the {, } are actually wildcards so if you don't use the -E option, you need to escape them with \.
+This however isn't the case for ., ? etc., those need to be escaped even if used with the -E option.  
+3. Character Classes
+[abc]: Matches any one of the characters (a, b, or c).
+
+[^abc]: Matches any character except a, b, or c.
+If you were to put ^[abc] instead, it would search for lines beginning with a, b or c
+[0-9]: Any digit.
+
+[a-z]: Any lowercase letter.
+
+4. Escaping
+\: If you want to find a literal . or *, you must "escape" it (e.g., \. finds a period).
+
+
+Searching for lines with a particular number of characters: 
+grep "^..$" FILE
+
+Here, ^ is the beginning of a line, .. is exactly 2 characters and $ is the end of a line.
+
+Alternatively you can use the -x option to match the entire line:
+
+grep -x .... FILE
+Searching for lines that contain EITHER x OR y: 
+
+grep -E "IT|CCE" studentinformation.txt
+
+here the | operator is literally OR, the command searches for lines that contain either IT or CCE. 
+Note here that this operator can only be used if the -E (extended regex) option is used. 
+
+In general the things you can do with grep: 
+count the number of lines matching with -c
+display files matching or not matching (-l and -L)
+match entire lines -x
+work with directories (-d recurse)
+
+----------------------------------------
+
+
+Note:
+grep "[0-9]*" does not match a single digit followed by any string, but matches 0 or more occurrences
+of digits. 
+To match what you want to do in the above, you must use grep "[0-9].*" 
+
+
+.* means "0 or more of any character" 
+you can use this when you want to match some number of occurrences of the character even when those occurrences
+aren't consecutive. 
+example: grep -E "a.*a" file.txt
+
+

@@ -1,0 +1,7 @@
+101:John Doe:Sales:50000
+102:Jane Smith:IT:65000
+103:apple:Marketing:45000
+104:Bob-Sponge:IT:55000
+105:Alice_Wonder:DevOps:75000
+106:  Spacey:Sales:40000
+107:123-456:Security:60000
