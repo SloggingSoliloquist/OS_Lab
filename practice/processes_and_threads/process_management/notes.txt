@@ -10,3 +10,10 @@ char *ls_args[] = {"ls", "-l", NULL};
 execv("/bin/ls",ls_args);	
 p: Search PATH. No need to specify the path to the file.
 execlp("ls","ls", "-l", NULL);
+
+while passing arguments to execv: 
+execv requires char * args[]. But actually in C++ each of the elements of args[] should be explicitly
+converted to (char *). 
+afterwards, pass it in the same way you normally would in C. (execv("file_path", args);)
+This gets sent to the argv[] in the child program (declared also as char * argv[]);
+Don't forget to terminate with NULL, and have the first argument be the file name.
