@@ -1,90 +1,77 @@
-#include <iostream>
-#include <vector>
-#include <algorithm>
+#include<vector>
+#include<iostream>
 
-struct Process {
-    int id;
-    int period;     // T
-    int burst;      // C
-    int remaining;  // remaining execution
-    int completion_time;
-    int turnaround_time;
-    int waiting_time;
-    int next_release; // next release time
-    int deadline;     // absolute deadline
+/*
+Almost identical to RMS, but while selecting the process to execute, select the one with the least next_release instead of the least period
+*/
+
+struct Process{
+    int pid;
+    int burst_time;
+    int period;
+
+    int remaining_time;
+    int next_release;
 };
 
-void edf(std::vector<Process> &tasks, int simulation_time) {
-    int n = tasks.size();
-    for(auto &t: tasks) {
-        t.remaining = 0;
-        t.next_release = 0;
-        t.deadline = t.period;
-        t.completion_time = 0;
-        t.turnaround_time = 0;
-        t.waiting_time = 0;
+int gcd(int a, int b){return b==0?a:gcd(b, a%b);}
+int lcm(int a, int b){return a/gcd(a, b)*b;}
+int computeHyperperiod(std::vector<Process> &processes){
+    int hyperperiod=processes[0].period;
+    for(int i=1;i<processes.size();i++){
+        hyperperiod=lcm(hyperperiod, processes[i].period);
     }
-
-    int current_time = 0;
-    while(current_time < simulation_time) {
-        // Release new instances
-        for(auto &t: tasks) {
-            if(current_time == t.next_release) {
-                t.remaining = t.burst;
-                t.deadline = current_time + t.period;
-                t.next_release += t.period;
+    return hyperperiod;
+}
+void edf(std::vector<Process> &processes, int hyperperiod){
+    int n=processes.size();
+    int t=0;
+    while(t<hyperperiod){
+        //check for any processes that need to be re-released
+        for(auto &p:processes){
+            if(t==p.next_release){
+            if(p.remaining_time>0)std::cout<<"Process "<<p.pid<<" has failed to meet its deadline\n";
+            p.remaining_time=p.burst_time;
+            p.next_release+=p.period;
+        }
+    }
+        //select the highest priority(least next_release) task to execute
+        int chosen=-1;
+        for(int i=0; i<n; i++){
+            if(processes[i].remaining_time>0){
+                if(chosen==-1 || processes[i].next_release<processes[chosen].next_release){
+                    chosen=i;
+                }
             }
         }
-
-        // Pick task with earliest deadline among ready tasks
-        Process* running = nullptr;
-        int earliest_deadline = 1e9;
-        for(auto &t: tasks) {
-            if(t.remaining > 0 && t.deadline < earliest_deadline) {
-                earliest_deadline = t.deadline;
-                running = &t;
-            }
+        //display the state of the scheduler
+        if(chosen==-1){
+            std::cout<<"Idle"<<std::endl;
         }
-
-        if(running) {
-            running->remaining--;
-            if(running->remaining == 0)
-                running->completion_time = current_time + 1;
+        else{
+            std::cout<<"Process "<<processes[chosen].pid<<" is executing at time "<<t<<std::endl;
+            processes[chosen].remaining_time--;
         }
-
-        current_time++;
-    }
-
-    // Compute TAT and WT for last instance
-    for(auto &t: tasks) {
-        t.turnaround_time = t.completion_time - (t.next_release - t.period);
-        t.waiting_time = t.turnaround_time - t.burst;
+        t++;
     }
 }
 
-void displayEDF(std::vector<Process> &tasks) {
-    std::cout << "ID\tPeriod\tBurst\tCT\tTAT\tWT\n";
-    for(auto &t: tasks)
-        std::cout << t.id << "\t" << t.period << "\t" << t.burst << "\t" << t.completion_time << "\t" << t.turnaround_time << "\t" << t.waiting_time << "\n";
-}
-
-int main() {
-    int n, sim_time;
-    std::cout << "Enter number of tasks: ";
-    std::cin >> n;
-    std::vector<Process> tasks(n);
-
-    for(int i = 0; i < n; i++) {
-        tasks[i].id = i+1;
-        std::cout << "Enter period and burst for task " << tasks[i].id << ": ";
-        std::cin >> tasks[i].period >> tasks[i].burst;
+int main(){
+    int n;
+    std::cout<<"Enter the number of processes: ";
+    std::cin>>n;
+    std::vector<Process> processes(n);
+    for(auto &p:processes){
+        std::cout<<"Enter the PID: ";
+        std::cin>>p.pid;
+        std::cout<<"Enter the burst time: ";
+        std::cin>>p.burst_time;
+        std::cout<<"Enter the period: ";
+        std::cin>>p.period;
+        p.remaining_time=0;
+        p.next_release=0;
     }
-
-    std::cout << "Enter simulation time: ";
-    std::cin >> sim_time;
-
-    edf(tasks, sim_time);
-    displayEDF(tasks);
-
+    int hyperperiod=computeHyperperiod(processes);
+    edf(processes, hyperperiod);
     return 0;
 }

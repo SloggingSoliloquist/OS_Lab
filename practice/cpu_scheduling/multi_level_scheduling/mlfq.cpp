@@ -100,7 +100,7 @@ void mlfq(std::vector<Process> &processes)
             }
         }
         else{
-            if(q_num==1)
+            if(q_num==1)//not 0
             {
                 q2.push(p);
             }

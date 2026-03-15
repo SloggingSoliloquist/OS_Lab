@@ -1,85 +1,97 @@
-#include <iostream>
-#include <vector>
-#include <algorithm>
+#include<iostream>
+#include<algorithm>
+#include<vector>
+#include<queue>
+/*
+THE IDEA:
+In Real time scheduling, unlike the other scheduling algorithms, the tasks are periodic. So you can't just keep track of
+when the list of tasks is over. Each task has a burst time, a period and a deadline. 
+In RMS particularly, the deadline is usually the period, meaning that the current task should finish executing before its next release. 
+RMS is a fixed/static priority scheduler, so the priority of each task is decided beforehand, and is the inverse of the task's period. 
+*/
 
-struct Process {
-    int id;
-    int period;   
-    int burst;       
-    int remaining;   
-    int completion_time;
-    int turnaround_time;
-    int waiting_time;
-    int arrival_time; 
+/*
+Priority queues are great for the other scheduling algorithms because they model the way the scheduler picks a task from the ready queue. 
+But that sort of model isn't useful for real time schedulers, which have tasks re-ocurring at fixed periods. So it's better if you just
+walk through the hyperperiod and manually pick the higher priority task, cos pushing tasks back into a priority queue gets very messy
+cos multiple instances of the exact same task can exist in the queue at the same time. 
+*/
+
+struct Process{
+    int pid;
+    int period;
+    int burst_time;
+
+    int next_release;
+    int remaining_time;
 };
 
-bool comparePeriod(Process &a, Process &b) {
-    return a.period < b.period;
+int gcd(int a, int b){return b==0?a:gcd(b, a%b);}
+int lcm(int a, int b){return a/gcd(a,b)*b;}
+
+int computeHyperperiod(std::vector<Process> &processes){
+    int hyperperiod=processes[0].period;
+    for(int i=1; i<processes.size(); i++){
+        hyperperiod=lcm(hyperperiod, processes[i].period);
+    }
+    return hyperperiod;
 }
 
-void rms(std::vector<Process> &tasks, int simulation_time) {
-    for(auto &t: tasks)
-        t.remaining = 0, t.completion_time = 0, t.turnaround_time = 0, t.waiting_time = 0, t.arrival_time = 0;
-
-    int n = tasks.size();
-    int current_time = 0;
-
-    while(current_time < simulation_time) {
-        // Release new instances at multiples of period
-        for(auto &t: tasks) {
-            if(current_time % t.period == 0)
-                t.remaining = t.burst;
-        }
-
-        // Pick highest-priority ready task (shortest period)
-        Process* running = nullptr;
-        for(auto &t: tasks) {
-            if(t.remaining > 0) {
-                running = &t;
-                break;
+void rms(std::vector<Process> &processes, int hyperperiod){
+    int n=processes.size();
+    int t=0;
+    while(t<hyperperiod){
+        //keep checking if any tasks have arrived at their  next_release, then re-release them by updating their 
+        //remaining_time and next_release
+        for(auto &p:processes){
+            if (t==p.next_release){
+                if(p.remaining_time>0)std::cout<<"Process "<<p.pid<<" has missed its deadline\n";
+                p.remaining_time=p.burst_time;
+                p.next_release+=p.period;
             }
         }
-
-        if(running) {
-            running->remaining--;
-            if(running->remaining == 0)
-                running->completion_time = current_time + 1;
+        //now select the highest priority task among the ones that haven't completed yet for execution
+        //simplest to iterate using an actual integer
+        int chosen=-1;
+        for(int i=0; i<n; i++){
+            if(processes[i].remaining_time>0){
+                if(chosen==-1 || processes[i].period<processes[chosen].period){
+                    chosen=i;
+                }
+            }
+        } 
+        
+        if(chosen==-1){
+            std::cout<<"Idle"<<std::endl;
         }
-
-        current_time++;
-    }
-
-    //once you get to the laslt instance, calculate the TA and WA
-    for(auto &t: tasks) {
-        t.turnaround_time = t.completion_time - t.arrival_time;
-        t.waiting_time = t.turnaround_time - t.burst;
+        //execute the chosen process for a second
+        else{
+            std::cout<<"Executing process "<<processes[chosen].pid<<" at time "<<t<<std::endl;
+            processes[chosen].remaining_time--;//don't forget
+        }
+        t++;//don't forget
     }
 }
 
-void displayRMS(std::vector<Process> &tasks) {
-    std::cout << "ID\tPeriod\tBurst\tCT\tTAT\tWT\n";
-    for(auto &t: tasks)
-        std::cout << t.id << "\t" << t.period << "\t" << t.burst << "\t" << t.completion_time << "\t" << t.turnaround_time << "\t" << t.waiting_time << "\n";
-}
-
-int main() {
-    int n, sim_time;
-    std::cout << "Enter number of tasks: ";
-    std::cin >> n;
-    std::vector<Process> tasks(n);
-
-    for(int i = 0; i < n; i++) {
-        tasks[i].id = i+1;
-        std::cout << "Enter period and burst for task " << tasks[i].id << ": ";
-        std::cin >> tasks[i].period >> tasks[i].burst;
+int main(){
+    int n;
+    std::cout<<"Enter the number of processes: ";
+    std::cin>>n;
+    std::vector<Process> processes(n);
+    for(auto &p:processes){
+        std::cout<<"Enter the process ID: ";
+        std::cin>>p.pid;
+        std::cout<<"Enter the period: ";
+        std::cin>>p.period;
+        std::cout<<"Enter the burst time: ";
+        std::cin>>p.burst_time;
+        p.next_release=0;
+        p.remaining_time=0;
     }
-
-    std::sort(tasks.begin(), tasks.end(), comparePeriod);
-
-    std::cout << "Enter simulation time: ";
-    std::cin >> sim_time;
-
-    rms(tasks, sim_time);
-    displayRMS(tasks);
+    int hyperperiod = computeHyperperiod(processes);
+    rms(processes, hyperperiod);
     return 0;
 }
+
+
+
