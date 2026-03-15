@@ -1,0 +1,12 @@
+fork() is fairly simple, so no discussion. 
+exec() has a few different types, but they all revolve around 4 basic options:
+l: specify a list of arguments one by one 
+execl("program_path", arg1, arg2..... NULL);
+execl("/bin/ls", "ls", "-l", NULL);
+v: specify a vector of arguments
+char *arg[] = {arg0, arg1, arg2}
+execv("program_path", arg);
+char *ls_args[] = {"ls", "-l", NULL};
+execv("/bin/ls",ls_args);	
+p: Search PATH. No need to specify the path to the file.
+execlp("ls","ls", "-l", NULL);
