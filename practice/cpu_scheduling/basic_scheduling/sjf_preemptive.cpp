@@ -29,11 +29,11 @@ struct compareRemainingTime{
 void sjf_preemptive(std::vector<Process> &processes)
 {
     std::sort(processes.begin(), processes.end(), compareArrival);
-    std::priority_queue<Process, std::vector<Process>, compareRemainingTime> ready_queue;
     for(Process &process:processes)
     {
         process.remaining_time=process.burst_time;
     }
+    std::priority_queue<Process, std::vector<Process>, compareRemainingTime> ready_queue;
     int i =0;
     int n = processes.size();
     int current_time=0;
