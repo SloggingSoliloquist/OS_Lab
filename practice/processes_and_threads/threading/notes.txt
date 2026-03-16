@@ -1,0 +1,4 @@
+Mistakes:
+1. Passing pointers or addresses into std::ref
+correct: std::thread t(function, std::ref(thing));
+wrong: std::thread t(function, std::ref(&thing));

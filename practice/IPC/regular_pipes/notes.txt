@@ -1,0 +1,6 @@
+common mistakes:
+1. not knowing what sizeof() and size() do. 
+If you have an array, sizeof(array) returns the size of the pointer to that array. not the size of the array itself. 
+vector.size() and string.size() both return the length, not the size in memory.
+Correct way is to do vector.size()*sizeof(vector_el)
+std::string s.size() is the actual size only because characters have size 1 byte.
