@@ -1,0 +1,23 @@
+basics:
+mutexes need pthreads library
+create a mutex: pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+acquire and release: pthread_mutex_lock(&mutex);
+pthread_mutex_unlock(&mutex);
+
+semaphores:
+needs semaphore.h 
+create: sem_t semaphore;
+initialize: sem_init(&semaphore, <int sharing> =0, NUM_RESOURCES);
+0: semaphore shared between all threads of a process
+
+acquire and release: sem_wait(&semaphore);
+sem_post(&semaphore);
+
+Binary Semaphore vs Mutex:
+use binary semaphore when you need shared memory. Mutexes need the pthread_mutex_t attributes to be changed. 
+also, sem_post() signals to all other waiting threads that a semaphore has been released. It wakes up waiting threads.
+Mutexes don't do this. So it's fine to use mutexes for something like bounded buffer, but not the best to use it for 
+reader writers.
+
+common mistakes:
+Don't give user defined functions or threads names like read() or write(), cos those are often primitives of synchronization libraries.
