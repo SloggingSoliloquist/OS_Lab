@@ -1,0 +1,19 @@
+When you're using threads to solve programs, IPC isn't needed.
+You use synchronization tools shared among the threads.
+
+But the moment you move on to processes, you need IPC to share data, and 
+synchronization as well to avoid race conditions. 
+
+Pipes and FIFOs are already more or less synchronized cos they are blocking. 
+
+So the majority of shared memory work requires synchronization. 
+So semaphores need to be shared. 
+
+Best approach for two files using a semaphore in shared memory: 
+Having the semaphore be a file, and then opening it using sem_open() (DOn't do this, it causes problems)
+
+better: 
+pass the semaphores in the struct itself. 
+
+Use shared memory when changes in one process need to reflect in the other. (not really for stuff like process scheduling)
+This is mainly cos it's hard to pass vectors and stuff in shared memory, but a lot simpler using pipes. 
